@@ -4,6 +4,9 @@ add_executable(EngineTests
     src/EventTests.cpp
     src/LayerStackTests.cpp
     src/ApplicationTests.cpp
+    src/VecTests.cpp
+    src/Mat4Tests.cpp
+    src/QuaternionTests.cpp
 )
 
 target_link_libraries(EngineTests
