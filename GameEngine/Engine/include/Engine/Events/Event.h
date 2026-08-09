@@ -11,9 +11,12 @@ namespace Engine
         None = 0,
         WindowClose,
         WindowResize,
-        // KeyPressed, MouseMoved, etc. are added in Milestone 3 once
-        // Platform/Input exists to actually produce them. Declaring them
-        // now would be speculative and untested.
+        KeyPressed,
+        KeyReleased,
+        MouseButtonPressed,
+        MouseButtonReleased,
+        MouseMoved,
+        MouseScrolled,
     };
 
     enum EventCategory
@@ -21,6 +24,9 @@ namespace Engine
         EventCategoryNone = 0,
         EventCategoryApplication = ENGINE_BIT(0),
         EventCategoryInput       = ENGINE_BIT(1),
+        EventCategoryKeyboard    = ENGINE_BIT(2),
+        EventCategoryMouse       = ENGINE_BIT(3),
+        EventCategoryMouseButton = ENGINE_BIT(4),
     };
 
     /// Base class for all engine events.
