@@ -12,6 +12,18 @@ namespace Engine
 
     void Log::Init()
     {
+        // Idempotent by necessity, not by accident: every test file that
+        // uses logging guards its own Log::Init() call with a
+        // translation-unit-local static bool (see CoreTests.cpp,
+        // ApplicationTests.cpp). Those guards don't share state with each
+        // other, so within one test binary Init() legitimately gets called
+        // more than once. Without this early-out, spdlog::register_logger
+        // throws "logger already exists" on the second call.
+        if (s_CoreLogger != nullptr)
+        {
+            return;
+        }
+
         std::vector<spdlog::sink_ptr> sinks;
         sinks.push_back(std::make_shared<spdlog::sinks::stdout_color_sink_mt>());
 
