@@ -3,6 +3,8 @@ add_library(Engine STATIC
     src/Core/Time.cpp
     src/Core/LayerStack.cpp
     src/Core/Application.cpp
+    src/Platform/GLFW/GlfwWindow.cpp
+    src/Platform/GLFW/GlfwInput.cpp
 )
 
 # PUBLIC: anything linking Engine (Sandbox, Tests) can #include "Engine/..."
@@ -18,6 +20,8 @@ target_include_directories(Engine
 target_link_libraries(Engine
     PUBLIC
         spdlog::spdlog
+    PRIVATE
+        glfw
 )
 
 target_compile_definitions(Engine

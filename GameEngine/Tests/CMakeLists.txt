@@ -1,5 +1,9 @@
 add_executable(EngineTests
     src/CoreTests.cpp
+    src/TimestepTests.cpp
+    src/EventTests.cpp
+    src/LayerStackTests.cpp
+    src/ApplicationTests.cpp
 )
 
 target_link_libraries(EngineTests
