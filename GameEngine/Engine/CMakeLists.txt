@@ -1,5 +1,8 @@
 add_library(Engine STATIC
     src/Core/Log.cpp
+    src/Core/Time.cpp
+    src/Core/LayerStack.cpp
+    src/Core/Application.cpp
 )
 
 # PUBLIC: anything linking Engine (Sandbox, Tests) can #include "Engine/..."

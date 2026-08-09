@@ -25,6 +25,7 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 # Project-wide options
 # ---------------------------------------------------------------------------
 option(ENGINE_WARNINGS_AS_ERRORS "Treat compiler warnings as errors" ON)
+option(ENGINE_BUILD_TESTS "Build the Tests target" ON)
 option(ENGINE_ENABLE_ASSERTS "Compile ENGINE_ASSERT checks into the binary" ON)
 
 # Default to a sane build type for single-config generators (Make/Ninja).
@@ -47,8 +48,24 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(spdlog)
 
+if(ENGINE_BUILD_TESTS)
+    FetchContent_Declare(
+        Catch2
+        GIT_REPOSITORY https://github.com/catchorg/Catch2.git
+        GIT_TAG        v3.7.1
+        GIT_SHALLOW    TRUE
+    )
+    FetchContent_MakeAvailable(Catch2)
+    list(APPEND CMAKE_MODULE_PATH ${catch2_SOURCE_DIR}/extras)
+endif()
+
 # ---------------------------------------------------------------------------
 # Subprojects
 # ---------------------------------------------------------------------------
 add_subdirectory(Engine)
 add_subdirectory(Sandbox)
+
+if(ENGINE_BUILD_TESTS)
+    enable_testing()
+    add_subdirectory(Tests)
+endif()
