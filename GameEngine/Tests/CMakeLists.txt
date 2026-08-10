@@ -7,6 +7,11 @@ add_executable(EngineTests
     src/VecTests.cpp
     src/Mat4Tests.cpp
     src/QuaternionTests.cpp
+    src/TransformComponentTests.cpp
+    src/ECS/EntityTests.cpp
+    src/ECS/ComponentPoolTests.cpp
+    src/ECS/RegistryTests.cpp
+    src/ECS/ViewTests.cpp
 )
 
 target_link_libraries(EngineTests
