@@ -10,6 +10,7 @@ namespace Engine
     {
     public:
         OpenGLVertexBuffer(const float* vertices, std::uint32_t size);
+        explicit OpenGLVertexBuffer(std::uint32_t size);
         ~OpenGLVertexBuffer() override;
 
         OpenGLVertexBuffer(const OpenGLVertexBuffer&) = delete;
@@ -20,6 +21,7 @@ namespace Engine
 
         void SetLayout(const BufferLayout& layout) override { m_Layout = layout; }
         [[nodiscard]] const BufferLayout& GetLayout() const override { return m_Layout; }
+        void SetData(const void* data, std::uint32_t size) override;
 
     private:
         std::uint32_t m_RendererID = 0;
