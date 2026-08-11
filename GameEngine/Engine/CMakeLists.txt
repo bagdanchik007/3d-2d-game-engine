@@ -1,3 +1,5 @@
+add_subdirectory(vendor/glad)
+
 add_library(Engine STATIC
     src/Core/Log.cpp
     src/Core/Time.cpp
@@ -5,6 +7,13 @@ add_library(Engine STATIC
     src/Core/Application.cpp
     src/Platform/GLFW/GlfwWindow.cpp
     src/Platform/GLFW/GlfwInput.cpp
+    src/ECS/Registry.cpp
+    src/Renderer/RenderCommand.cpp
+    src/Platform/OpenGL/OpenGLContext.cpp
+    src/Platform/OpenGL/OpenGLBuffer.cpp
+    src/Platform/OpenGL/OpenGLVertexArray.cpp
+    src/Platform/OpenGL/OpenGLShader.cpp
+    src/Platform/OpenGL/OpenGLRendererAPI.cpp
 )
 
 # PUBLIC: anything linking Engine (Sandbox, Tests) can #include "Engine/..."
@@ -22,11 +31,14 @@ target_link_libraries(Engine
         spdlog::spdlog
     PRIVATE
         glfw
+        glad
 )
 
 target_compile_definitions(Engine
     PUBLIC
         $<$<BOOL:${ENGINE_ENABLE_ASSERTS}>:ENGINE_ENABLE_ASSERTS>
+    PRIVATE
+        GLFW_INCLUDE_NONE
 )
 
 engine_set_warnings(Engine)
