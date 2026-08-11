@@ -138,7 +138,19 @@ namespace Engine
         virtual void SetLayout(const BufferLayout& layout) = 0;
         [[nodiscard]] virtual const BufferLayout& GetLayout() const = 0;
 
+        /// Overwrites the buffer's GPU-side data without reallocating it.
+        /// Only meaningful on a buffer created via the size-only Create()
+        /// overload below (a GL_DYNAMIC_DRAW allocation) - the
+        /// upload-once Create(vertices, size) overload has no use for
+        /// this, since M6's static triangle never changes after upload.
+        virtual void SetData(const void* data, std::uint32_t size) = 0;
+
         [[nodiscard]] static std::shared_ptr<VertexBuffer> Create(const float* vertices, std::uint32_t size);
+
+        /// Allocates size bytes with no initial data, for a buffer the
+        /// caller will repeatedly overwrite via SetData - Renderer2D's
+        /// per-frame quad batch, specifically.
+        [[nodiscard]] static std::shared_ptr<VertexBuffer> Create(std::uint32_t size);
     };
 
     class IndexBuffer
