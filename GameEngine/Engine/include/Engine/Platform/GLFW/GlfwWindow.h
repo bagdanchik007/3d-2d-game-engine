@@ -1,6 +1,9 @@
 #pragma once
 
 #include "Engine/Core/Window.h"
+#include "Engine/Renderer/GraphicsContext.h"
+
+#include <memory>
 
 struct GLFWwindow;
 
@@ -33,6 +36,7 @@ namespace Engine
         void Shutdown();
 
         GLFWwindow* m_Window = nullptr;
+        std::unique_ptr<GraphicsContext> m_Context;
 
         /// Data block whose address is handed to GLFW via
         /// glfwSetWindowUserPointer, so the static GLFW callbacks below can

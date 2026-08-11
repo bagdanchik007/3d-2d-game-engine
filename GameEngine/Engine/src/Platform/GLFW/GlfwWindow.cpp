@@ -7,6 +7,7 @@
 #include "Engine/Events/ApplicationEvent.h"
 #include "Engine/Events/KeyEvent.h"
 #include "Engine/Events/MouseEvent.h"
+#include "Engine/Platform/OpenGL/OpenGLContext.h"
 
 #include <GLFW/glfw3.h>
 
@@ -54,11 +55,18 @@ namespace Engine
             ENGINE_CORE_ASSERT(success, "Could not initialize GLFW");
         }
 
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
+        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+        glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE); // required for a core profile context on macOS; harmless elsewhere
+
         m_Window = glfwCreateWindow(
             static_cast<int>(props.Width), static_cast<int>(props.Height), m_Data.Title.c_str(), nullptr, nullptr);
         ++s_GLFWWindowCount;
 
-        glfwMakeContextCurrent(m_Window);
+        m_Context = std::make_unique<OpenGLContext>(m_Window);
+        m_Context->Init();
+
         glfwSetWindowUserPointer(m_Window, &m_Data);
         SetVSync(true);
 
@@ -181,7 +189,7 @@ namespace Engine
     void GlfwWindow::OnUpdate()
     {
         glfwPollEvents();
-        glfwSwapBuffers(m_Window);
+        m_Context->SwapBuffers();
     }
 
     void GlfwWindow::SetVSync(bool enabled)
