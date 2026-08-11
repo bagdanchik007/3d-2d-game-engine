@@ -12,6 +12,12 @@ namespace Engine
         glNamedBufferData(m_RendererID, size, vertices, GL_STATIC_DRAW);
     }
 
+    OpenGLVertexBuffer::OpenGLVertexBuffer(std::uint32_t size)
+    {
+        glCreateBuffers(1, &m_RendererID);
+        glNamedBufferData(m_RendererID, size, nullptr, GL_DYNAMIC_DRAW);
+    }
+
     OpenGLVertexBuffer::~OpenGLVertexBuffer()
     {
         glDeleteBuffers(1, &m_RendererID);
@@ -27,9 +33,19 @@ namespace Engine
         glBindBuffer(GL_ARRAY_BUFFER, 0);
     }
 
+    void OpenGLVertexBuffer::SetData(const void* data, std::uint32_t size)
+    {
+        glNamedBufferSubData(m_RendererID, 0, size, data);
+    }
+
     std::shared_ptr<VertexBuffer> VertexBuffer::Create(const float* vertices, std::uint32_t size)
     {
         return std::make_shared<OpenGLVertexBuffer>(vertices, size);
+    }
+
+    std::shared_ptr<VertexBuffer> VertexBuffer::Create(std::uint32_t size)
+    {
+        return std::make_shared<OpenGLVertexBuffer>(size);
     }
 
     // --- IndexBuffer ----------------------------------------------------
