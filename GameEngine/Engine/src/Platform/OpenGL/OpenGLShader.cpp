@@ -114,6 +114,11 @@ namespace Engine
         glUniform1i(GetUniformLocation(name), value);
     }
 
+    void OpenGLShader::SetIntArray(const std::string& name, const int* values, uint32_t count)
+    {
+        glUniform1iv(GetUniformLocation(name), static_cast<GLsizei>(count), values);
+    }
+
     void OpenGLShader::SetFloat3(const std::string& name, const Math::Vec3& value)
     {
         glUniform3f(GetUniformLocation(name), value.x, value.y, value.z);

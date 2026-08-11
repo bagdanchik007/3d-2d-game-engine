@@ -20,6 +20,7 @@ namespace Engine
         void Unbind() const override;
 
         void SetInt(const std::string& name, int value) override;
+        void SetIntArray(const std::string& name, const int* values, uint32_t count) override;
         void SetFloat3(const std::string& name, const Math::Vec3& value) override;
         void SetFloat4(const std::string& name, const Math::Vec4& value) override;
         void SetMat4(const std::string& name, const Math::Mat4& value) override;
