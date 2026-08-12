@@ -1,5 +1,6 @@
 add_subdirectory(vendor/glad)
 add_subdirectory(vendor/stb_image)
+add_subdirectory(vendor/tinyobjloader)
 
 add_library(Engine STATIC
     src/Core/Log.cpp
@@ -13,6 +14,7 @@ add_library(Engine STATIC
     src/Renderer/Renderer2D.cpp
     src/Renderer/Mesh.cpp
     src/Renderer/PerspectiveCameraController.cpp
+    src/Assets/AssetManager.cpp
     src/Platform/OpenGL/OpenGLContext.cpp
     src/Platform/OpenGL/OpenGLBuffer.cpp
     src/Platform/OpenGL/OpenGLVertexArray.cpp
@@ -39,6 +41,7 @@ target_link_libraries(Engine
         glfw
         glad
         stb_image
+        tiny_obj_loader
 )
 
 target_compile_definitions(Engine
