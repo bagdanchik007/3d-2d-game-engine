@@ -11,12 +11,15 @@ add_library(Engine STATIC
     src/ECS/Registry.cpp
     src/Renderer/RenderCommand.cpp
     src/Renderer/Renderer2D.cpp
+    src/Renderer/Mesh.cpp
+    src/Renderer/PerspectiveCameraController.cpp
     src/Platform/OpenGL/OpenGLContext.cpp
     src/Platform/OpenGL/OpenGLBuffer.cpp
     src/Platform/OpenGL/OpenGLVertexArray.cpp
     src/Platform/OpenGL/OpenGLShader.cpp
     src/Platform/OpenGL/OpenGLRendererAPI.cpp
     src/Platform/OpenGL/OpenGLTexture.cpp
+    src/Platform/OpenGL/OpenGLFramebuffer.cpp
 )
 
 # PUBLIC: anything linking Engine (Sandbox, Tests) can #include "Engine/..."
