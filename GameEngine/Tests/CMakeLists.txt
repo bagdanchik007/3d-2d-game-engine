@@ -8,6 +8,9 @@ add_executable(EngineTests
     src/Mat4Tests.cpp
     src/QuaternionTests.cpp
     src/TransformComponentTests.cpp
+    src/UUIDTests.cpp
+    src/MeshLoadingTests.cpp
+    src/AssetManagerTests.cpp
     src/ECS/EntityTests.cpp
     src/ECS/ComponentPoolTests.cpp
     src/ECS/RegistryTests.cpp
