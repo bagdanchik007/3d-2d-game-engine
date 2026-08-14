@@ -15,6 +15,7 @@ add_library(Engine STATIC
     src/Renderer/Mesh.cpp
     src/Renderer/PerspectiveCameraController.cpp
     src/Assets/AssetManager.cpp
+    src/Physics/PhysicsWorld.cpp
     src/Platform/OpenGL/OpenGLContext.cpp
     src/Platform/OpenGL/OpenGLBuffer.cpp
     src/Platform/OpenGL/OpenGLVertexArray.cpp
