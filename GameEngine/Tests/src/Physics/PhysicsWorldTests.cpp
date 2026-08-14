@@ -63,3 +63,39 @@ TEST_CASE("Two dynamic bodies with zero restitution come to rest without bouncin
     REQUIRE(box->GetPosition().y == Approx(1.0f).margin(0.05f));
     REQUIRE(std::fabs(box->GetVelocity().y) < 0.5f);
 }
+
+TEST_CASE("A body with high restitution bounces - upward velocity after impact", "[physics][world]")
+{
+    PhysicsWorld world;
+    world.SetGravity(Vec3(0.0f, -10.0f, 0.0f));
+
+    RigidBodyDef floorDef;
+    floorDef.Position = Vec3(0.0f, 0.0f, 0.0f);
+    floorDef.HalfExtents = Vec3(10.0f, 0.5f, 10.0f);
+    floorDef.IsStatic = true;
+    floorDef.Restitution = 0.9f;
+    world.CreateBody(floorDef);
+
+    RigidBodyDef ballDef;
+    ballDef.Position = Vec3(0.0f, 3.0f, 0.0f);
+    ballDef.HalfExtents = Vec3(0.3f, 0.3f, 0.3f);
+    ballDef.Restitution = 0.9f;
+    RigidBody* ball = world.CreateBody(ballDef);
+
+    bool observedUpwardVelocityAfterFalling = false;
+    bool wasFalling = false;
+    for (int i = 0; i < 200; ++i)
+    {
+        world.Update(PhysicsWorld::FixedTimestep);
+
+        if (ball->GetVelocity().y < -0.1f)
+            wasFalling = true;
+        else if (wasFalling && ball->GetVelocity().y > 0.1f)
+        {
+            observedUpwardVelocityAfterFalling = true;
+            break;
+        }
+    }
+
+    REQUIRE(observedUpwardVelocityAfterFalling);
+}
