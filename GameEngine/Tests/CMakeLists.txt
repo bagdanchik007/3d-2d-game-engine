@@ -18,6 +18,8 @@ add_executable(EngineTests
     src/Physics/AABBTests.cpp
     src/Physics/RigidBodyTests.cpp
     src/Physics/PhysicsWorldTests.cpp
+    src/Scene/SceneTests.cpp
+    src/Scene/SceneSerializerTests.cpp
 )
 
 target_link_libraries(EngineTests
