@@ -9,6 +9,42 @@ using namespace Engine::Physics;
 using Engine::Math::Vec3;
 using Catch::Approx;
 
+TEST_CASE("A body falls under gravity via semi-implicit Euler integration", "[physics][world]")
+{
+    PhysicsWorld world;
+    world.SetGravity(Vec3(0.0f, -10.0f, 0.0f));
+
+    RigidBodyDef def;
+    def.Position = Vec3(0.0f, 100.0f, 0.0f);
+    RigidBody* body = world.CreateBody(def);
+
+    const float dt = PhysicsWorld::FixedTimestep;
+    world.Update(dt);
+
+    const float expectedVelocityY = -10.0f * dt;
+    const float expectedPositionY = 100.0f + expectedVelocityY * dt;
+
+    REQUIRE(body->GetVelocity().y == Approx(expectedVelocityY));
+    REQUIRE(body->GetPosition().y == Approx(expectedPositionY));
+}
+
+TEST_CASE("A static body is unaffected by gravity", "[physics][world]")
+{
+    PhysicsWorld world;
+    world.SetGravity(Vec3(0.0f, -10.0f, 0.0f));
+
+    RigidBodyDef def;
+    def.Position = Vec3(0.0f, 5.0f, 0.0f);
+    def.IsStatic = true;
+    RigidBody* body = world.CreateBody(def);
+
+    for (int i = 0; i < 60; ++i)
+        world.Update(PhysicsWorld::FixedTimestep);
+
+    REQUIRE(body->GetPosition().y == Approx(5.0f));
+    REQUIRE(body->GetVelocity().y == Approx(0.0f));
+}
+
 TEST_CASE("Update accumulates leftover time across calls instead of dropping it", "[physics][world]")
 {
     PhysicsWorld world;
