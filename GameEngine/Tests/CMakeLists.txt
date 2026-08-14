@@ -15,6 +15,9 @@ add_executable(EngineTests
     src/ECS/ComponentPoolTests.cpp
     src/ECS/RegistryTests.cpp
     src/ECS/ViewTests.cpp
+    src/Physics/AABBTests.cpp
+    src/Physics/RigidBodyTests.cpp
+    src/Physics/PhysicsWorldTests.cpp
 )
 
 target_link_libraries(EngineTests
