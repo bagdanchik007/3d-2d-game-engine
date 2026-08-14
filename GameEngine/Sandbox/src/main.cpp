@@ -2,8 +2,10 @@
 #include "Engine/Core/Log.h"
 #include "Engine/Renderer/RenderCommand.h"
 #include "Engine/Renderer/Renderer2D.h"
+#include "AssetManagerLayer.h"
 #include "ExampleLayer.h"
 #include "Mesh3DLayer.h"
+#include "PhysicsDemoLayer.h"
 #include "Renderer2DLayer.h"
 #include "TriangleLayer.h"
 
@@ -22,6 +24,8 @@ namespace Sandbox
             PushLayer(std::make_unique<TriangleLayer>());
             PushLayer(std::make_unique<Renderer2DLayer>());
             PushLayer(std::make_unique<Mesh3DLayer>());
+            PushLayer(std::make_unique<AssetManagerLayer>());
+            PushLayer(std::make_unique<PhysicsDemoLayer>());
         }
     };
 
