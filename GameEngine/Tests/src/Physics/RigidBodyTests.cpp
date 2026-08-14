@@ -70,14 +70,3 @@ TEST_CASE("SetVelocity updates the body's linear velocity", "[physics][rigidbody
     REQUIRE(body.GetVelocity() == Vec3(3.0f, -2.0f, 5.0f));
 }
 
-TEST_CASE("SetVelocity updates the body's linear velocity", "[physics][rigidbody]")
-{
-    RigidBodyDef def;
-    RigidBody body(def);
-
-    REQUIRE(body.GetVelocity() == Vec3(0.0f, 0.0f, 0.0f));
-
-    body.SetVelocity(Vec3(3.0f, -2.0f, 5.0f));
-
-    REQUIRE(body.GetVelocity() == Vec3(3.0f, -2.0f, 5.0f));
-}
