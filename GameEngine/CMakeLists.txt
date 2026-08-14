@@ -76,7 +76,9 @@ FetchContent_Declare(
     GIT_TAG        0.8.0
     GIT_SHALLOW    TRUE
 )
+set(CMAKE_POLICY_VERSION_MINIMUM 3.5)
 FetchContent_MakeAvailable(yaml-cpp)
+unset(CMAKE_POLICY_VERSION_MINIMUM)
 
 if(ENGINE_BUILD_TESTS)
     FetchContent_Declare(
