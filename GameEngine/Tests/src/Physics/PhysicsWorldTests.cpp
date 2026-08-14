@@ -120,6 +120,7 @@ TEST_CASE("A body with high restitution bounces - upward velocity after impact",
 
     bool observedUpwardVelocityAfterFalling = false;
     bool wasFalling = false;
+
     for (int i = 0; i < 200; ++i)
     {
         world.Update(PhysicsWorld::FixedTimestep);
@@ -134,4 +135,55 @@ TEST_CASE("A body with high restitution bounces - upward velocity after impact",
     }
 
     REQUIRE(observedUpwardVelocityAfterFalling);
+}
+
+TEST_CASE("High friction slows a tangentially sliding body more than low friction does", "[physics][world]")
+{
+    auto simulateSlideDistance = [](float friction) -> float
+    {
+        PhysicsWorld world;
+        world.SetGravity(Vec3(0.0f, -10.0f, 0.0f));
+
+        RigidBodyDef floorDef;
+        floorDef.Position = Vec3(0.0f, 0.0f, 0.0f);
+        floorDef.HalfExtents = Vec3(50.0f, 0.5f, 50.0f);
+        floorDef.IsStatic = true;
+        floorDef.Friction = friction;
+        floorDef.Restitution = 0.0f;
+        world.CreateBody(floorDef);
+
+        RigidBodyDef boxDef;
+        boxDef.Position = Vec3(0.0f, 0.6f, 0.0f);
+        boxDef.HalfExtents = Vec3(0.5f, 0.5f, 0.5f);
+        boxDef.Friction = friction;
+        boxDef.Restitution = 0.0f;
+        RigidBody* box = world.CreateBody(boxDef);
+        box->SetVelocity(Vec3(5.0f, 0.0f, 0.0f));
+
+        const float startX = box->GetPosition().x;
+
+        for (int i = 0; i < 120; ++i)
+            world.Update(PhysicsWorld::FixedTimestep);
+
+        return box->GetPosition().x - startX;
+    };
+
+    const float slideDistanceLowFriction = simulateSlideDistance(0.05f);
+    const float slideDistanceHighFriction = simulateSlideDistance(0.95f);
+
+    REQUIRE(slideDistanceHighFriction < slideDistanceLowFriction);
+}
+
+TEST_CASE("RemoveBody excludes it from further simulation", "[physics][world]")
+{
+    PhysicsWorld world;
+    RigidBodyDef def;
+    RigidBody* body = world.CreateBody(def);
+
+    REQUIRE(world.GetBodyCount() == 1);
+
+    world.RemoveBody(body);
+
+    REQUIRE(world.GetBodyCount() == 0);
+    REQUIRE_NOTHROW(world.Update(PhysicsWorld::FixedTimestep));
 }
