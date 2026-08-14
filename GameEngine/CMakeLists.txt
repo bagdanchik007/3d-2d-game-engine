@@ -65,6 +65,19 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(glfw)
 
+set(YAML_CPP_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set(YAML_CPP_BUILD_TOOLS OFF CACHE BOOL "" FORCE)
+set(YAML_CPP_BUILD_CONTRIB OFF CACHE BOOL "" FORCE)
+set(YAML_CPP_INSTALL OFF CACHE BOOL "" FORCE)
+
+FetchContent_Declare(
+    yaml-cpp
+    GIT_REPOSITORY https://github.com/jbeder/yaml-cpp.git
+    GIT_TAG        0.8.0
+    GIT_SHALLOW    TRUE
+)
+FetchContent_MakeAvailable(yaml-cpp)
+
 if(ENGINE_BUILD_TESTS)
     FetchContent_Declare(
         Catch2
