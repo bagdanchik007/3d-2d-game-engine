@@ -4,6 +4,8 @@
 #include <catch2/catch_test_macros.hpp>
 
 #include <cmath>
+#include <cstdio>
+#include <cstdio>
 
 using namespace Engine::Physics;
 using Engine::Math::Vec3;
@@ -53,4 +55,29 @@ TEST_CASE("GetAABB reflects the body's current position and half-extents", "[phy
 
     body.SetPosition(Vec3(10.0f, 0.0f, 0.0f));
     REQUIRE(body.GetAABB().GetCenter() == Vec3(10.0f, 0.0f, 0.0f));
+}
+
+
+TEST_CASE("SetVelocity updates the body's linear velocity", "[physics][rigidbody]")
+{
+    RigidBodyDef def;
+    RigidBody body(def);
+
+    REQUIRE(body.GetVelocity() == Vec3(0.0f, 0.0f, 0.0f));
+
+    body.SetVelocity(Vec3(3.0f, -2.0f, 5.0f));
+
+    REQUIRE(body.GetVelocity() == Vec3(3.0f, -2.0f, 5.0f));
+}
+
+TEST_CASE("SetVelocity updates the body's linear velocity", "[physics][rigidbody]")
+{
+    RigidBodyDef def;
+    RigidBody body(def);
+
+    REQUIRE(body.GetVelocity() == Vec3(0.0f, 0.0f, 0.0f));
+
+    body.SetVelocity(Vec3(3.0f, -2.0f, 5.0f));
+
+    REQUIRE(body.GetVelocity() == Vec3(3.0f, -2.0f, 5.0f));
 }
