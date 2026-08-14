@@ -187,3 +187,21 @@ TEST_CASE("RemoveBody excludes it from further simulation", "[physics][world]")
     REQUIRE(world.GetBodyCount() == 0);
     REQUIRE_NOTHROW(world.Update(PhysicsWorld::FixedTimestep));
 }
+
+TEST_CASE("RemoveBody excludes a body from further simulation", "[physics][world]")
+{
+    PhysicsWorld world;
+    world.SetGravity(Vec3(0.0f, -10.0f, 0.0f));
+
+    RigidBodyDef def;
+    def.Position = Vec3(0.0f, 100.0f, 0.0f);
+
+    RigidBody* body = world.CreateBody(def);
+
+    REQUIRE(world.GetBodyCount() == 1);
+
+    world.RemoveBody(body);
+
+    REQUIRE(world.GetBodyCount() == 0);
+    REQUIRE_NOTHROW(world.Update(PhysicsWorld::FixedTimestep));
+}
