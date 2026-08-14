@@ -7,6 +7,7 @@
 #include "Mesh3DLayer.h"
 #include "PhysicsDemoLayer.h"
 #include "Renderer2DLayer.h"
+#include "SceneHierarchyLayer.h"
 #include "TriangleLayer.h"
 
 namespace Sandbox
@@ -26,6 +27,7 @@ namespace Sandbox
             PushLayer(std::make_unique<Mesh3DLayer>());
             PushLayer(std::make_unique<AssetManagerLayer>());
             PushLayer(std::make_unique<PhysicsDemoLayer>());
+            PushLayer(std::make_unique<SceneHierarchyLayer>());
         }
     };
 
