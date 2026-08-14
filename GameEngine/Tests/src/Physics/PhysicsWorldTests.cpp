@@ -38,3 +38,28 @@ TEST_CASE("An extreme deltaTime does not spiral into unbounded catch-up steps", 
 
     REQUIRE_FALSE(std::isnan(body->GetPosition().y));
 }
+
+TEST_CASE("Two dynamic bodies with zero restitution come to rest without bouncing", "[physics][world]")
+{
+    PhysicsWorld world;
+    world.SetGravity(Vec3(0.0f, -10.0f, 0.0f));
+
+    RigidBodyDef floorDef;
+    floorDef.Position = Vec3(0.0f, 0.0f, 0.0f);
+    floorDef.HalfExtents = Vec3(10.0f, 0.5f, 10.0f);
+    floorDef.IsStatic = true;
+    floorDef.Restitution = 0.0f;
+    world.CreateBody(floorDef);
+
+    RigidBodyDef boxDef;
+    boxDef.Position = Vec3(0.0f, 2.0f, 0.0f);
+    boxDef.HalfExtents = Vec3(0.5f, 0.5f, 0.5f);
+    boxDef.Restitution = 0.0f;
+    RigidBody* box = world.CreateBody(boxDef);
+
+    for (int i = 0; i < 300; ++i)
+        world.Update(PhysicsWorld::FixedTimestep);
+
+    REQUIRE(box->GetPosition().y == Approx(1.0f).margin(0.05f));
+    REQUIRE(std::fabs(box->GetVelocity().y) < 0.5f);
+}
