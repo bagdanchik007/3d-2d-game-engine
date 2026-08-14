@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Engine/ECS/View.h"
 #include "Engine/Assets/AssetManager.h"
 #include "Engine/Core/Layer.h"
 #include "Engine/Core/Log.h"
