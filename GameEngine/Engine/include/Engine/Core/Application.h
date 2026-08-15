@@ -57,6 +57,20 @@ namespace Engine
         Layer* PushLayer(std::unique_ptr<Layer> layer);
         Layer* PushOverlay(std::unique_ptr<Layer> overlay);
 
+        /// Designates `layer` (already pushed via PushLayer/PushOverlay -
+        /// this does not take ownership or add it to the stack) as the
+        /// layer whose OnImGuiFrameBegin/OnImGuiFrameEnd wrap the
+        /// per-frame OnImGuiRender pass (see Layer.h and Run()'s
+        /// implementation). Left null by default and by every headless
+        /// test (see Tests/src/TestSupport/NullWindow.h) and every
+        /// non-editor application (Sandbox's non-M12 layers never call
+        /// this) - Application itself has zero ImGui-specific code beyond
+        /// this one nullable pointer and the two conditional calls in
+        /// Run(), so it never needs to include anything ImGui-related to
+        /// compile or link, and stays exactly as headless-testable as
+        /// before M12.
+        void SetImGuiLayer(Layer* layer) noexcept { m_ImGuiLayer = layer; }
+
         void Close() noexcept { m_Running = false; }
 
         [[nodiscard]] bool IsRunning() const noexcept { return m_Running; }
@@ -75,6 +89,7 @@ namespace Engine
         float m_LastFrameTime = 0.0f;
         std::unique_ptr<Window> m_Window;
         LayerStack m_LayerStack;
+        Layer* m_ImGuiLayer = nullptr; // non-owning - see SetImGuiLayer
 
         static Application* s_Instance;
     };

@@ -47,6 +47,27 @@ namespace Engine
                 {
                     layer->OnUpdate(timestep);
                 }
+
+                // A completely separate pass, after every layer's game
+                // logic has already run this frame - see the OnImGuiRender
+                // doc comment in Layer.h for why. Entirely skipped (both
+                // the Begin/End calls AND the per-layer OnImGuiRender loop)
+                // when no ImGui layer was ever designated, so a headless
+                // Application - or any Application that simply never opts
+                // into an editor UI - pays nothing for this existing:
+                // no ImGui calls happen, and Layer::OnImGuiRender's default
+                // empty-body override would have been just as free to call
+                // regardless, but skipping the loop entirely avoids even
+                // that near-zero cost.
+                if (m_ImGuiLayer != nullptr)
+                {
+                    m_ImGuiLayer->OnImGuiFrameBegin();
+                    for (auto& layer : m_LayerStack)
+                    {
+                        layer->OnImGuiRender();
+                    }
+                    m_ImGuiLayer->OnImGuiFrameEnd();
+                }
             }
 
             m_Window->OnUpdate();
