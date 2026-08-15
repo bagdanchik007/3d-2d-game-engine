@@ -2,7 +2,9 @@
 #include "Engine/Core/Log.h"
 #include "Engine/Renderer/RenderCommand.h"
 #include "Engine/Renderer/Renderer2D.h"
+#include "Engine/UI/ImGuiLayer.h"
 #include "AssetManagerLayer.h"
+#include "EditorLayer.h"
 #include "ExampleLayer.h"
 #include "Mesh3DLayer.h"
 #include "PhysicsDemoLayer.h"
@@ -28,6 +30,15 @@ namespace Sandbox
             PushLayer(std::make_unique<AssetManagerLayer>());
             PushLayer(std::make_unique<PhysicsDemoLayer>());
             PushLayer(std::make_unique<SceneHierarchyLayer>());
+            PushLayer(std::make_unique<EditorLayer>());
+
+            // Pushed as an overlay (see LayerStack/Layer.h, M2): must sit
+            // above every other layer so it gets first refusal on events
+            // (blocking mouse/keyboard input ImGui itself wants, per
+            // ImGuiLayer::SetBlockEvents) before any game layer beneath it
+            // sees them.
+            Engine::Layer* imguiLayer = PushOverlay(std::make_unique<Engine::UI::ImGuiLayer>());
+            SetImGuiLayer(imguiLayer);
         }
     };
 
