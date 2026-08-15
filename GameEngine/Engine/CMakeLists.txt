@@ -1,6 +1,7 @@
 add_subdirectory(vendor/glad)
 add_subdirectory(vendor/stb_image)
 add_subdirectory(vendor/tinyobjloader)
+add_subdirectory(vendor/imgui)
 
 add_library(Engine STATIC
     src/Core/Log.cpp
@@ -18,6 +19,10 @@ add_library(Engine STATIC
     src/Physics/PhysicsWorld.cpp
     src/Scene/Scene.cpp
     src/Scene/SceneSerializer.cpp
+    src/UI/ImGuiLayer.cpp
+    src/Editor/SceneHierarchyPanel.cpp
+    src/Editor/InspectorPanel.cpp
+    src/Editor/ViewportPanel.cpp
     src/Platform/OpenGL/OpenGLContext.cpp
     src/Platform/OpenGL/OpenGLBuffer.cpp
     src/Platform/OpenGL/OpenGLVertexArray.cpp
@@ -46,6 +51,7 @@ target_link_libraries(Engine
         stb_image
         tiny_obj_loader
         yaml-cpp::yaml-cpp
+        imgui
 )
 
 target_compile_definitions(Engine
