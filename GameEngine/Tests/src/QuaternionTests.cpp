@@ -155,3 +155,54 @@ TEST_CASE("ToMat4 produces a rotation matrix consistent with RotateVector", "[ma
 
     REQUIRE(VectorsApproxEqual(viaQuaternion, viaMatrix4.XYZ()));
 }
+
+TEST_CASE("ToAxisAngle round-trips through FromAxisAngle for a general rotation", "[math][quaternion]")
+{
+    const Vec3 originalAxis = Vec3(1.0f, 2.0f, 3.0f).Normalized();
+    const float originalAngle = Radians(73.0f);
+    const Quaternion q = Quaternion::FromAxisAngle(originalAxis, originalAngle);
+
+    const auto [axis, angle] = q.ToAxisAngle();
+
+    // Not comparing axis/angle component-by-component against the
+    // originals directly: ToAxisAngle's acos-based angle is always in
+    // [0, 2*pi], and FromAxisAngle(axis, angle) is equivalent to
+    // FromAxisAngle(-axis, -angle) - so the recovered (axis, angle) pair
+    // is not guaranteed to be bit-for-bit identical to the input even
+    // when it represents the exact same rotation. What must hold, and
+    // what's actually checked here, is that reconstructing a quaternion
+    // from the recovered pair rotates a test vector identically to the
+    // original.
+    const Quaternion reconstructed = Quaternion::FromAxisAngle(axis, angle);
+    const Vec3 testVector(0.4f, -1.2f, 2.1f);
+    const Vec3 original = q.RotateVector(testVector);
+    const Vec3 roundTripped = reconstructed.RotateVector(testVector);
+
+    REQUIRE(VectorsApproxEqual(original, roundTripped));
+}
+
+TEST_CASE("ToAxisAngle on the identity quaternion returns a zero angle, not NaN", "[math][quaternion]")
+{
+    const Quaternion identity;
+    const auto [axis, angle] = identity.ToAxisAngle();
+
+    REQUIRE_FALSE(std::isnan(axis.x));
+    REQUIRE_FALSE(std::isnan(axis.y));
+    REQUIRE_FALSE(std::isnan(axis.z));
+    REQUIRE(angle == Approx(0.0f).margin(1e-5f));
+}
+
+TEST_CASE("ToAxisAngle for a 180 degree rotation recovers the correct axis", "[math][quaternion]")
+{
+    const Vec3 originalAxis(0.0f, 1.0f, 0.0f);
+    const Quaternion q = Quaternion::FromAxisAngle(originalAxis, Radians(180.0f));
+
+    const auto [axis, angle] = q.ToAxisAngle();
+
+    REQUIRE(angle == Approx(Radians(180.0f)).margin(1e-4f));
+    // 180 degrees is exactly the case where FromAxisAngle's w component is
+    // 0 (cos(90 degrees)) - the sign-ambiguity case the general round-trip
+    // test above describes. The axis magnitude/direction (not sign) must
+    // still match.
+    REQUIRE(std::fabs(axis.y) == Approx(1.0f));
+}
