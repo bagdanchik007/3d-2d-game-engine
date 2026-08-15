@@ -5,6 +5,7 @@
 #include "Engine/Math/Vec3.h"
 
 #include <cmath>
+#include <utility>
 
 namespace Engine::Math
 {
@@ -34,6 +35,28 @@ namespace Engine::Math
             const float halfAngle = angleRadians * 0.5f;
             const float s = std::sin(halfAngle);
             return Quaternion(normalizedAxis.x * s, normalizedAxis.y * s, normalizedAxis.z * s, std::cos(halfAngle));
+        }
+
+        /// Inverse of FromAxisAngle. Returns {(1,0,0), 0} for a
+        /// near-identity quaternion (angle close to 0) rather than
+        /// dividing by the near-zero sin(halfAngle) term that would
+        /// otherwise appear in the denominator of the axis calculation -
+        /// same zero-length fallback philosophy as Vec3::Normalized: a
+        /// well-defined, arbitrary answer beats propagating NaN through
+        /// whatever reads this next (InspectorPanel's rotation widget, in
+        /// this engine's only current caller).
+        [[nodiscard]] std::pair<Vec3, float> ToAxisAngle() const noexcept
+        {
+            const float clampedW = Clamp(w, -1.0f, 1.0f);
+            const float angle = 2.0f * std::acos(clampedW);
+
+            const float s = std::sqrt(1.0f - clampedW * clampedW);
+            if (s <= DefaultEpsilon)
+            {
+                return {Vec3(1.0f, 0.0f, 0.0f), 0.0f};
+            }
+
+            return {Vec3(x / s, y / s, z / s), angle};
         }
 
         [[nodiscard]] constexpr float LengthSquared() const noexcept { return x * x + y * y + z * z + w * w; }
