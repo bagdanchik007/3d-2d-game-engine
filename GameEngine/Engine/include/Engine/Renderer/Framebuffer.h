@@ -38,6 +38,17 @@ namespace Engine
 
         virtual void BindColorAttachment(uint32_t slot = 0) const = 0;
 
+        /// The raw renderer-specific handle for the color attachment,
+        /// needed by ViewportPanel (M12) to pass to ImGui::Image, which
+        /// takes an opaque ImTextureID rather than going through this
+        /// engine's own Texture2D/binding abstractions at all - ImGui
+        /// itself doesn't know this engine's types exist. This is a
+        /// narrower addition than making the attachment a full Texture2D
+        /// (see the class-level note above on why that was rejected):
+        /// just the one raw value a genuinely new consumer needs, nothing
+        /// else about the attachment's lifetime or write-access model.
+        [[nodiscard]] virtual uint32_t GetColorAttachmentRendererID() const = 0;
+
         [[nodiscard]] virtual const FramebufferSpecification& GetSpecification() const = 0;
 
         [[nodiscard]] static std::shared_ptr<Framebuffer> Create(const FramebufferSpecification& spec);
