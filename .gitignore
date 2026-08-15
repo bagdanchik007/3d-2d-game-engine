@@ -10,6 +10,9 @@
 *.userosscache
 *.sln.docstates
 
+# Local Dear ImGui window layout
+imgui.ini
+
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
 

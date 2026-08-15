@@ -76,9 +76,24 @@ FetchContent_Declare(
     GIT_TAG        0.8.0
     GIT_SHALLOW    TRUE
 )
+# yaml-cpp 0.8.0 declares compatibility with older CMake policies; retain
+# this compatibility floor for CMake 4.x, where configuring otherwise fails.
 set(CMAKE_POLICY_VERSION_MINIMUM 3.5)
 FetchContent_MakeAvailable(yaml-cpp)
 unset(CMAKE_POLICY_VERSION_MINIMUM)
+
+# ImGui ships no CMakeLists.txt of its own (by design - it's meant to be
+# dropped into a project's own build), so this fetches source only, without
+# FetchContent_MakeAvailable's automatic add_subdirectory step. The actual
+# build target is defined in Engine/vendor/imgui/CMakeLists.txt, which
+# references ${imgui_SOURCE_DIR} set here.
+FetchContent_Declare(
+    imgui
+    GIT_REPOSITORY https://github.com/ocornut/imgui.git
+    GIT_TAG        v1.90.9
+    GIT_SHALLOW    TRUE
+)
+FetchContent_Populate(imgui)
 
 if(ENGINE_BUILD_TESTS)
     FetchContent_Declare(
