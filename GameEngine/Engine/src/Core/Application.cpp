@@ -2,6 +2,7 @@
 
 #include "Engine/Core/Assert.h"
 #include "Engine/Core/Log.h"
+#include "Engine/Core/Profiler.h"
 #include "Engine/Core/Time.h"
 
 namespace Engine
@@ -36,6 +37,15 @@ namespace Engine
             const float time = Time::GetSeconds();
             const Timestep timestep(time - m_LastFrameTime);
             m_LastFrameTime = time;
+
+            // Profiler is a dependency-free Core utility (no GPU/ImGui
+            // involvement - see Profiler.h), so recording frame timing
+            // here doesn't compromise Application's headless testability
+            // the way calling into RenderCommand or ImGui directly would;
+            // it's the same category of thing as Application already
+            // computing `timestep` itself two lines above.
+            Profiler::BeginFrame();
+            Profiler::SetLastFrameTimeMs(timestep.GetMilliseconds());
 
             // Skip game/layer updates while minimized: nothing is visible,
             // so spending CPU time simulating it is pure waste. The window
