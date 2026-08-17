@@ -8,6 +8,7 @@ add_library(Engine STATIC
     src/Core/Time.cpp
     src/Core/LayerStack.cpp
     src/Core/Application.cpp
+    src/Core/Profiler.cpp
     src/Platform/GLFW/GlfwWindow.cpp
     src/Platform/GLFW/GlfwInput.cpp
     src/ECS/Registry.cpp
@@ -23,6 +24,9 @@ add_library(Engine STATIC
     src/Editor/SceneHierarchyPanel.cpp
     src/Editor/InspectorPanel.cpp
     src/Editor/ViewportPanel.cpp
+    src/Editor/ConsolePanel.cpp
+    src/Editor/ProfilerPanel.cpp
+    src/Editor/AssetBrowserPanel.cpp
     src/Platform/OpenGL/OpenGLContext.cpp
     src/Platform/OpenGL/OpenGLBuffer.cpp
     src/Platform/OpenGL/OpenGLVertexArray.cpp
