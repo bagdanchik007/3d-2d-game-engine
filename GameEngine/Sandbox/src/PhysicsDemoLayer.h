@@ -3,6 +3,7 @@
 #include "Engine/Assets/AssetManager.h"
 #include "Engine/Core/Layer.h"
 #include "Engine/Core/Log.h"
+#include "Engine/Core/Profiler.h"
 #include "Engine/Physics/PhysicsWorld.h"
 #include "Engine/Renderer/Mesh.h"
 #include "Engine/Renderer/PerspectiveCameraController.h"
@@ -64,7 +65,10 @@ namespace Sandbox
         void OnUpdate(Engine::Timestep timestep) override
         {
             m_CameraController.OnUpdate(timestep);
-            m_World.Update(timestep.GetSeconds());
+            {
+                ENGINE_PROFILE_SCOPE("PhysicsWorld::Update");
+                m_World.Update(timestep.GetSeconds());
+            }
 
             const auto shader = Engine::AssetManager::GetShader(m_ShaderHandle);
             if (!shader)
