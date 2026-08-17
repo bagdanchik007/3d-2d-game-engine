@@ -20,6 +20,8 @@ add_executable(EngineTests
     src/Physics/PhysicsWorldTests.cpp
     src/Scene/SceneTests.cpp
     src/Scene/SceneSerializerTests.cpp
+    src/ConsoleSinkTests.cpp
+    src/ProfilerTests.cpp
 )
 
 target_link_libraries(EngineTests
