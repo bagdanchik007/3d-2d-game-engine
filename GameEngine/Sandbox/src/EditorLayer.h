@@ -1,11 +1,17 @@
 #pragma once
 
+#include <filesystem>
+
 #include "Engine/Core/Input.h"
 #include "Engine/Core/KeyCodes.h"
 #include "Engine/Core/Layer.h"
 #include "Engine/Core/Log.h"
+#include "Engine/Core/Profiler.h"
 #include "Engine/ECS/View.h"
+#include "Engine/Editor/AssetBrowserPanel.h"
+#include "Engine/Editor/ConsolePanel.h"
 #include "Engine/Editor/InspectorPanel.h"
+#include "Engine/Editor/ProfilerPanel.h"
 #include "Engine/Editor/SceneHierarchyPanel.h"
 #include "Engine/Editor/ViewportPanel.h"
 #include "Engine/Renderer/Framebuffer.h"
@@ -58,16 +64,18 @@ namespace Sandbox
         )";
     }
 
-    /// M12's existence proof: a real editor window layout (hierarchy,
-    /// inspector, viewport) driving a real Scene, with the 3D view
-    /// rendered into a Framebuffer and displayed via ViewportPanel exactly
-    /// as a real editor would - not a simplified stand-in.
+    /// M12/M13's existence proof: a real editor window layout (hierarchy,
+    /// inspector, viewport, console, profiler, asset browser) driving a
+    /// real Scene, with the 3D view rendered into a Framebuffer and
+    /// displayed via ViewportPanel exactly as a real editor would - not a
+    /// simplified stand-in.
     class EditorLayer final : public Engine::Layer
     {
     public:
         EditorLayer()
             : Layer("EditorLayer"), m_CameraController(16.0f / 9.0f)
             , m_SceneHierarchyPanel(&m_Scene), m_InspectorPanel(&m_Scene)
+            , m_AssetBrowserPanel(std::filesystem::current_path() / "assets")
         {
         }
 
@@ -116,7 +124,10 @@ namespace Sandbox
             Engine::RenderCommand::SetClearColor(Engine::Math::Vec4(0.12f, 0.12f, 0.15f, 1.0f));
             Engine::RenderCommand::Clear();
 
-            RenderScene();
+            {
+                ENGINE_PROFILE_SCOPE("EditorLayer::RenderScene");
+                RenderScene();
+            }
 
             m_Framebuffer->Unbind();
         }
@@ -126,6 +137,9 @@ namespace Sandbox
             m_SceneHierarchyPanel.OnImGuiRender();
             m_InspectorPanel.OnImGuiRender(m_SceneHierarchyPanel.GetSelectedEntity());
             m_ViewportPanel.OnImGuiRender();
+            m_ConsolePanel.OnImGuiRender();
+            m_ProfilerPanel.OnImGuiRender();
+            m_AssetBrowserPanel.OnImGuiRender();
         }
 
         void OnEvent(Engine::Event& event) override
@@ -180,6 +194,9 @@ namespace Sandbox
         Engine::Editor::SceneHierarchyPanel m_SceneHierarchyPanel;
         Engine::Editor::InspectorPanel m_InspectorPanel;
         Engine::Editor::ViewportPanel m_ViewportPanel;
+        Engine::Editor::ConsolePanel m_ConsolePanel;
+        Engine::Editor::ProfilerPanel m_ProfilerPanel;
+        Engine::Editor::AssetBrowserPanel m_AssetBrowserPanel;
 
         std::shared_ptr<Engine::Framebuffer> m_Framebuffer;
         std::shared_ptr<Engine::Mesh> m_CubeMesh;
