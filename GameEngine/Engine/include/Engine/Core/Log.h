@@ -4,6 +4,11 @@
 
 #include <memory>
 
+namespace Engine
+{
+    class ConsoleSink; // see Core/ConsoleSink.h - forward-declared here so ordinary logging call sites don't pull it in
+}
+
 // NOTE on a design trade-off, not a mistake to silently paper over:
 // An earlier version of this header forward-declared spdlog::logger to keep
 // spdlog out of Engine's public API entirely. That does not work: the
@@ -38,9 +43,18 @@ namespace Engine
         [[nodiscard]] static std::shared_ptr<spdlog::logger>& GetCoreLogger();
         [[nodiscard]] static std::shared_ptr<spdlog::logger>& GetClientLogger();
 
+        /// The sink ConsolePanel (M13) reads from - see ConsoleSink.h for
+        /// why it exists as a real spdlog sink rather than a second,
+        /// parallel capture mechanism. Returns the same instance attached
+        /// to both loggers in Init(), so ConsolePanel sees Core and
+        /// Client messages together, exactly as they'd appear in the
+        /// terminal's interleaved output.
+        [[nodiscard]] static std::shared_ptr<ConsoleSink> GetConsoleSink();
+
     private:
         static std::shared_ptr<spdlog::logger> s_CoreLogger;
         static std::shared_ptr<spdlog::logger> s_ClientLogger;
+        static std::shared_ptr<ConsoleSink> s_ConsoleSink;
     };
 
 } // namespace Engine
