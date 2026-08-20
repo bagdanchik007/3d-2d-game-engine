@@ -2,6 +2,8 @@
 
 #include "Engine/Core/Log.h"
 
+#include <stb_image/stb_image.h>
+
 #include <fstream>
 #include <optional>
 #include <sstream>
@@ -39,6 +41,9 @@ namespace Engine
     std::unordered_map<AssetHandle, std::shared_ptr<Shader>> AssetManager::s_Shaders;
 
     std::unordered_map<AssetHandle, AssetType> AssetManager::s_HandleTypes;
+
+    std::mutex AssetManager::s_PendingUploadsMutex;
+    std::vector<AssetManager::PendingTextureUpload> AssetManager::s_PendingUploads;
 
     AssetHandle AssetManager::LoadTexture2D(const std::string& path)
     {
@@ -114,6 +119,102 @@ namespace Engine
         return handle;
     }
 
+    AssetHandle AssetManager::LoadTexture2DAsync(const std::string& path, JobSystem& jobSystem)
+    {
+        // Same de-duplication as the synchronous LoadTexture2D: registering
+        // the handle in s_TexturePathCache immediately (before the
+        // background decode even starts) means a second call with the
+        // same path - synchronous or async - hits this cache and returns
+        // the SAME handle instead of submitting a duplicate decode job.
+        // The handle isn't usable yet (IsLoaded is still false, since
+        // s_HandleTypes isn't touched until upload completes), but it's
+        // already reserved.
+        if (const auto it = s_TexturePathCache.find(path); it != s_TexturePathCache.end())
+        {
+            return it->second;
+        }
+
+        const AssetHandle handle;
+        s_TexturePathCache[path] = handle;
+
+        // The job submitted here touches ONLY local variables and the
+        // mutex-protected s_PendingUploads queue - never s_Textures,
+        // s_HandleTypes, or any other AssetManager map. That boundary is
+        // the entire thread-safety argument for this class (see the
+        // THREADING CONTRACT note in AssetManager.h): a worker thread
+        // executing this lambda has no way to touch state that the main
+        // thread's synchronous methods also read/write without locking.
+        jobSystem.Submit([path, handle]()
+        {
+            int width = 0;
+            int height = 0;
+            int sourceChannels = 0;
+
+            // _thread, not the plain global variant: stb_image's global
+            // flip flag has no synchronization of its own, so calling the
+            // non-thread-local setter here would be a genuine data race
+            // against the main thread's OWN synchronous Texture2D::Create
+            // path (OpenGLTexture.cpp), which sets the same flag whenever
+            // it loads a texture - both would very likely be setting it to
+            // the same value (1), but a data race is undefined behavior
+            // regardless of whether the racing writes agree.
+            stbi_set_flip_vertically_on_load_thread(1);
+
+            // Forced to 4 (RGBA), not the source image's native channel
+            // count: Texture2D::Create(width, height) - used below in
+            // ProcessPendingGPUUploads - hardcodes GL_RGBA/4 bytes per
+            // pixel (see OpenGLTexture2D's empty-texture constructor,
+            // M7), unlike Texture2D::Create(path)'s own file-loading
+            // constructor, which inspects the real channel count and
+            // picks GL_RGB or GL_RGBA accordingly. A 3-channel RGB source
+            // (any JPEG without an alpha channel - the common case, not
+            // an edge case) would otherwise produce byteCount = w*h*3
+            // while SetData's internal assert expects w*h*4, failing on
+            // exactly the most common kind of photo.
+            unsigned char* pixels = stbi_load(path.c_str(), &width, &height, &sourceChannels, 4);
+
+            if (pixels == nullptr)
+            {
+                ENGINE_CORE_ERROR("Failed to async-load texture '{}': {}", path, stbi_failure_reason());
+                return;
+            }
+
+            constexpr int kForcedChannels = 4;
+            const std::lock_guard<std::mutex> lock(s_PendingUploadsMutex);
+            s_PendingUploads.push_back(PendingTextureUpload{handle, width, height, kForcedChannels, pixels});
+        });
+
+        return handle;
+    }
+
+    void AssetManager::ProcessPendingGPUUploads()
+    {
+        // Swapped out under the lock, then processed lock-free: holding
+        // s_PendingUploadsMutex for the entire duration of several
+        // Texture2D::Create + SetData calls (real GPU work, potentially
+        // slow) would block every worker thread trying to push a newly
+        // completed decode during that whole window, for no benefit - the
+        // lock only needs to protect the brief moment of taking ownership
+        // of the queue's contents.
+        std::vector<PendingTextureUpload> uploads;
+        {
+            const std::lock_guard<std::mutex> lock(s_PendingUploadsMutex);
+            uploads.swap(s_PendingUploads);
+        }
+
+        for (const PendingTextureUpload& upload : uploads)
+        {
+            const auto texture = Texture2D::Create(static_cast<uint32_t>(upload.Width), static_cast<uint32_t>(upload.Height));
+
+            const uint32_t byteCount = static_cast<uint32_t>(upload.Width) * static_cast<uint32_t>(upload.Height) * static_cast<uint32_t>(upload.Channels);
+            texture->SetData(upload.Pixels, byteCount);
+            stbi_image_free(upload.Pixels);
+
+            s_Textures[upload.Handle] = texture;
+            s_HandleTypes[upload.Handle] = AssetType::Texture2D;
+        }
+    }
+
     std::shared_ptr<Texture2D> AssetManager::GetTexture2D(AssetHandle handle)
     {
         const auto it = s_Textures.find(handle);
@@ -152,6 +253,21 @@ namespace Engine
         s_Meshes.clear();
         s_Shaders.clear();
         s_HandleTypes.clear();
+
+        // Any decode job that finished (or finishes shortly after this
+        // call) but was never processed by ProcessPendingGPUUploads holds
+        // a raw stbi-allocated pixel buffer that only this function or
+        // ProcessPendingGPUUploads knows how to free - without this,
+        // Clear() would either leak that memory, or (worse) leave it for
+        // a LATER ProcessPendingGPUUploads() call to resurrect into
+        // s_Textures/s_HandleTypes, silently undoing what Clear() was
+        // just asked to erase.
+        const std::lock_guard<std::mutex> lock(s_PendingUploadsMutex);
+        for (const PendingTextureUpload& upload : s_PendingUploads)
+        {
+            stbi_image_free(upload.Pixels);
+        }
+        s_PendingUploads.clear();
     }
 
 } // namespace Engine
