@@ -22,6 +22,7 @@ add_executable(EngineTests
     src/Scene/SceneSerializerTests.cpp
     src/ConsoleSinkTests.cpp
     src/ProfilerTests.cpp
+    src/JobSystemTests.cpp
 )
 
 target_link_libraries(EngineTests
