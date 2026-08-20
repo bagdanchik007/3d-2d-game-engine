@@ -4,6 +4,7 @@
 #include "Engine/Renderer/Renderer2D.h"
 #include "Engine/UI/ImGuiLayer.h"
 #include "AssetManagerLayer.h"
+#include "AsyncLoadingLayer.h"
 #include "EditorLayer.h"
 #include "ExampleLayer.h"
 #include "Mesh3DLayer.h"
@@ -31,6 +32,7 @@ namespace Sandbox
             PushLayer(std::make_unique<PhysicsDemoLayer>());
             PushLayer(std::make_unique<SceneHierarchyLayer>());
             PushLayer(std::make_unique<EditorLayer>());
+            PushLayer(std::make_unique<AsyncLoadingLayer>());
 
             // Pushed as an overlay (see LayerStack/Layer.h, M2): must sit
             // above every other layer so it gets first refusal on events
