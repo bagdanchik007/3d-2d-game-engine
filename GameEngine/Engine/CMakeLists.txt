@@ -1,3 +1,5 @@
+find_package(Threads REQUIRED)
+
 add_subdirectory(vendor/glad)
 add_subdirectory(vendor/stb_image)
 add_subdirectory(vendor/tinyobjloader)
@@ -9,6 +11,7 @@ add_library(Engine STATIC
     src/Core/LayerStack.cpp
     src/Core/Application.cpp
     src/Core/Profiler.cpp
+    src/Core/JobSystem.cpp
     src/Platform/GLFW/GlfwWindow.cpp
     src/Platform/GLFW/GlfwInput.cpp
     src/ECS/Registry.cpp
@@ -56,6 +59,7 @@ target_link_libraries(Engine
         tiny_obj_loader
         yaml-cpp::yaml-cpp
         imgui
+        Threads::Threads
 )
 
 target_compile_definitions(Engine
